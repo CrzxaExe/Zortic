@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --color-dark-900: #464646;
+    --color-dark-950: #242424;
+
+    --color-primary-600: #1c8eeb;
+}
+
+@utility animatable {
+    @apply transition-all ease-in-out duration-300;
+}
