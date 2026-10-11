@@ -25,15 +25,15 @@ onKeyDown(e => e.key === 'b' && e.ctrlKey, toggleTab)
 
 <template>
     <aside 
-        class="flex flex-col fixed left-0 h-screen max-h-screen w-full animatable rounded-r-lg lg:rounded-r-xl overflow-hidden"
+        class="flex flex-col fixed left-2 lg:left-3 top-2 h-screen max-h-[calc(100vh-1rem)] shadow-[3px_0px_0px_4px_#e4f2f5] dark:shadow-[3px_0px_0px_4px_#000000] w-full animatable rounded-lg overflow-hidden"
         :class="[settings.data.isOpen ? 'max-w-60' : 'max-w-9 lg:max-w-13']"
     >
         <div class="w-full relative flex flex-col shrink-0">
             <div 
-                class="flex items-center px-2 lg:px-3 pt-2 pb-4 lg:pb-6 bg-zinc-200 dark:bg-dark-950" 
+                class="flex items-center px-2 lg:px-3 pt-2 lg:pt-4 pb-4 lg:pb-6 bg-light-300 dark:bg-dark-950" 
                 :class="[
-                    settings.data.isOpen ? 'justify-start' : 'justify-end',
-                    isSelecting && curIndex-1 === -1 ? 'rounded-br-lg' : ''
+                    settings.data.isOpen ? 'justify-start' : 'justify-center',
+                    isSelecting && curIndex-1 === -1 ? 'rounded-b-lg' : ''
                 ]" 
                 @click="toggleTab"
             >
@@ -43,15 +43,16 @@ onKeyDown(e => e.key === 'b' && e.ctrlKey, toggleTab)
                     <div class="w-1.5 bg-black dark:bg-white h-5 lg:h-7 animatable" :class="[settings.data.isOpen ? 'ml-2 w-3 lg:w-5' : '']" />
                 </div>
             </div>
-            <nav class="flex flex-col bg-white dark:bg-black" @mouseenter="() => isSelecting = true" @mouseleave="() => isSelecting = false">
+            <nav class="flex flex-col bg-light-100 dark:bg-black" @mouseenter="() => isSelecting = true" @mouseleave="() => isSelecting = false">
                 <RouterLink 
                     v-for="{ icon, label, to }, key in navigationRoute" 
-                    class="relative flex items-center w-full pl-1.5 lg:pl-3.5 hover:bg-white dark:hover:bg-black hover:translate-x-2 py-2 lg:py-2.5 animatable"
+                    class="relative flex items-center w-full pl-1.5 lg:pl-3.5 hover:bg-light-100 dark:hover:bg-black py-2 lg:py-2.5 animatable"
                     @mouseenter="() => curIndex = key"
                     :class="[
-                        settings.data.navIndex === key ? 'bg-primary-600' : 'bg-zinc-200 dark:bg-dark-950',
-                        isSelecting && curIndex-1 === key ? 'rounded-br-lg' : '',
-                        isSelecting && curIndex+1 === key ? 'rounded-tr-lg' : '',
+                        settings.data.navIndex === key ? 'bg-primary-600' : 'bg-light-300 dark:bg-dark-950',
+                        isSelecting && curIndex-1 === key ? 'rounded-b-lg' : '',
+                        isSelecting && curIndex+1 === key ? 'rounded-t-lg' : '',
+                        settings.data.isOpen ? 'hover:translate-x-2' : '',
                     ]"
                     :key 
                     :to
@@ -63,24 +64,24 @@ onKeyDown(e => e.key === 'b' && e.ctrlKey, toggleTab)
         </div>
 
         <div 
-            class="bg-zinc-200 dark:bg-dark-950 flex-1 min-h-0 flex flex-col justify-end py-2 animatable" 
-            :class="[isSelecting && curIndex+1 === navigationRoute.length ? 'rounded-tr-lg' : '']"
+            class="bg-light-300 dark:bg-dark-950 flex-1 min-h-0 flex flex-col justify-end px-1.5 lg:px-3.5 py-2 overflow-hidden animatable" 
+            :class="[isSelecting && curIndex+1 === navigationRoute.length ? 'rounded-t-lg' : '']"
         >
-            <div class="px-1.5 lg:px-3.5">
+            <div class="">
                 <button class="cursor-pointer hover:text-primary-600 animatable" @click="() => settings.setDarkMode()">
                     <LightModeIcon v-if="!settings.data.dark" />
                     <DarkModeIcon v-else />
                 </button>
             </div>
 
-            <RouterLink to="/settings" class="relative flex w-full pl-1.5 lg:pl-3.5 bg-zinc-200 dark:bg-dark-950 hover:bg-white dark:hover:bg-black py-2 lg:py-2.5 animatable">
+            <RouterLink to="/settings" class="relative flex w-full py-2 lg:py-2.5 rounded-xl animatable" :class="[settings.data.isOpen ? 'bg-light-300 dark:bg-dark-950 hover:bg-white dark:hover:bg-black hover:px-2' : 'hover:text-primary-600']">
                 <GearIcon />
-                <span class="animatable overflow-hidden inline-block font-light uppercase" :class="[settings.data.isOpen ? 'w-[90%] pl-2' : 'w-0']">Settings</span>
+                <span class="animatable overflow-hidden inline-block font-light uppercase" :class="[settings.data.isOpen ? 'w-[90%] pl-2 ' : 'w-0']">Settings</span>
             </RouterLink>
         </div>
     </aside>
 
-    <main class="pl-9 lg:pl-13 w-full max-w-screen overflow-x-hidden">
+    <main class="pl-11 lg:pl-16 w-full max-w-screen overflow-x-hidden">
         <RouterView />
     </main>
 </template>
