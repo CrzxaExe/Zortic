@@ -5,10 +5,13 @@
 @theme {
     --color-light-100: #e4f2f5;
     --color-light-200: #cfe0e3;
-    --color-light-300: #9aa8ad;
+    --color-light-300: #c0d0e0;
+    --color-light-400: #b0c2d8;
+    --color-light-500: #a0bed0;
 
+    --color-dark-700: #606060;
     --color-dark-800: #464646;
-    --color-dark-900: #323232;
+    --color-dark-900: #303030;
     --color-dark-950: #242424;
 
     --color-primary-600: #1c8eeb;

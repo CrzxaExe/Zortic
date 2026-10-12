@@ -1,40 +1,59 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import SearchFrom from '../components/forms/SearchFrom.vue';
-import GridIcon from '../components/icons/GridIcon.vue';
-import RowIcon from '../components/icons/RowIcon.vue';
+import DefaultActions from '../components/actions/DefaultActions.vue';
+import { actionNote, itemTypes } from '../constants/list.ts';
+import NoteList from '../components/lists/NoteList.vue';
 
-const itemTypes = [
-    GridIcon,
-    RowIcon,
-];
-const itemType = ref(0);
+const itemType = ref(0)
+
+function setItemType (index: number) {
+    itemType.value = index
+}
+
+const noteList = ref<Note[]>([
+    {
+        filename: "fa1vom34n.md",
+        title: "Daily Note",
+        content: "Ahok",
+    },
+    {
+        filename: "ifth21st41io.md",
+        title: "Dev Note",
+        content: "Ahok",
+    },
+    {
+        filename: "kcnddj34546.md",
+        title: "Copy Paste",
+        content: "Ahok",
+    },
+]);
 </script>
 
 <template>
-    <main class="px-1 lg:px-1.5 mt-2">
-        <header class="px-3 py-2 bg-light-300 dark:bg-dark-950 rounded-lg">
+    <article class="lg:pl-0.5 pr-1 mt-2 flex flex-col relative justify-stretch gap-2 min-h-[calc(100vh-0.5rem)]">
+        <header class="px-3 py-2 lg:py-3 bg-light-300 dark:bg-dark-950 rounded-lg flex flex-col gap-2">
             <div class="flex flex-row justify-between">
-                <h1 class="text-2xl lg:text-3xl font-bold tracking-tighter">Notes</h1>
+                <h1 class="text-3xl lg:text-4xl font-bold tracking-tighter">Notes</h1>
 
-                <div class="flex gap-2">
-                    <div class="flex p-1.5 rounded-xl border-2 border-light-100 text-light-100 dark:border-dark-800 dark:text-dark-800">
-                        <template v-for="(item, i) in itemTypes" :key="i">
-                            <i v-if="itemType === i">
-                                <component :is="item" />
-                            </i>
-                        </template>
-                    </div>
+                <SearchFrom />
+            </div>
 
-                    <SearchFrom />
+            <DefaultActions :actions="actionNote" />
+        </header>
+
+        <section 
+            class="px-3 py-2 bg-light-300 dark:bg-dark-950 rounded-lg min-h-full flex flex-col"
+        >
+            <div class="w-fit flex gap-2 items-center">
+                <div class="flex items-center rounded-xl border-2 border-dark-950 text-dark-950 dark:border-white dark:text-white overflow-hidden">
+                    <i v-for="(item, i) in itemTypes" :key="i" class="p-1.5 cursor-pointer hover:bg-primary-600" @click="() => setItemType(i)" :class="itemType === i ? 'bg-black dark:bg-white text-white dark:text-black' : ''">
+                        <component :is="item" />
+                    </i>
                 </div>
             </div>
 
-            <div>test</div>
-        </header>
-
-        <section>
-
+            <NoteList :list="noteList" :list-type="itemType" />
         </section>
-    </main>
+    </article>
 </template>

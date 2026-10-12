@@ -1,12 +1,21 @@
 import { defineStore } from "pinia";
-import { reactive, watch } from "vue";
+import { reactive } from "vue";
 import { navigationRoute } from "../constants/route";
 import { load } from "@tauri-apps/plugin-store";
 
 const store = await load("settings.json");
 
+type SettingsConfig = {
+    isOpen: boolean;
+    navIndex: number;
+    dark: boolean;
+}
+
+/**
+ * Settings store
+ */
 export const useSettings = defineStore("settings", () => {
-    const data = reactive({
+    const data = reactive<SettingsConfig>({
         isOpen: false,
         navIndex: 0,
         dark: true,
@@ -38,23 +47,44 @@ export const useSettings = defineStore("settings", () => {
         data.dark = state;
         data.dark ?
             document.documentElement.classList.add("dark") :
-            document.documentElement.classList.remove("dark")
+            document.documentElement.classList.remove("dark");
+
+        await save("dark", state);
     }
 
-    watch([data.dark], async ([newDark]) => {
+    async function save(key: string, value: string | boolean | number) {
         try {
-            await store.set("dark", newDark);
-
+            await store.set(key, value);
+    
             await store.save();
         } catch (error: unknown) {
             if(error instanceof Error) console.error(error.message);
         }
-    })
+    }
 
     return {
+        /**
+         * Settings config
+         */
         data,
 
+        /**
+         * Saving setting key with value into config file
+         * @param key Key of value
+         * @param value
+         */
+        save,
+
+        /**
+         * Set current theme (light/dark)
+         * @param state true = dark, false = light
+         */
         setDarkMode,
+
+        /**
+         * Set current state of sidebar
+         * @param state state sidebar
+         */
         setToggle,
         syncNavIndex,
         loadSettings,

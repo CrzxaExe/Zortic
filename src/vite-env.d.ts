@@ -5,3 +5,14 @@ declare module "*.vue" {
   const component: DefineComponent<{}, {}, any>;
   export default component;
 }
+
+type Note = {
+  filename: string;
+  title: string;
+  content: string;
+}
+
+type Action = {
+    label: string;
+    icon:  DefineComponent<{}, {}, any>
+}

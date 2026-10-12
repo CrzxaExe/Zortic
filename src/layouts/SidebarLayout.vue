@@ -25,24 +25,25 @@ onKeyDown(e => e.key === 'b' && e.ctrlKey, toggleTab)
 
 <template>
     <aside 
-        class="flex flex-col fixed left-2 lg:left-3 top-2 h-screen max-h-[calc(100vh-1rem)] shadow-[3px_0px_0px_4px_#e4f2f5] dark:shadow-[3px_0px_0px_4px_#000000] w-full animatable rounded-lg overflow-hidden"
-        :class="[settings.data.isOpen ? 'max-w-60' : 'max-w-9 lg:max-w-13']"
+        class="flex flex-col fixed left-1 top-2 h-screen max-h-[calc(100vh-1rem)] bg-light-100 dark:bg-black shadow-[2px_0px_0px_2px_#e4f2f5] dark:shadow-[2px_0px_0px_2px_#000000] w-full animatable rounded-lg overflow-hidden z-10"
+        :class="[settings.data.isOpen ? 'max-w-60' : 'max-w-9 lg:max-w-13.5']"
     >
         <div class="w-full relative flex flex-col shrink-0">
             <div 
-                class="flex items-center px-2 lg:px-3 pt-2 lg:pt-4 pb-4 lg:pb-6 bg-light-300 dark:bg-dark-950" 
+                class="flex items-center px-2 lg:px-2.5 pt-2 lg:pt-4 pb-4 lg:pb-6 w-full lg:max-w-60 overflow-hidden bg-light-300 dark:bg-dark-950" 
                 :class="[
                     settings.data.isOpen ? 'justify-start' : 'justify-center',
                     isSelecting && curIndex-1 === -1 ? 'rounded-b-lg' : ''
                 ]" 
                 @click="toggleTab"
             >
-                <span class="overflow-hidden self-start animatable text-2xl font-bold tracking-tighter" :class="[settings.data.isOpen ? 'w-full' : 'w-0']">Zortic</span>
+                <span class="overflow-hidden self-start animatable text-2xl font-bold tracking-tighter" :class="[settings.data.isOpen ? 'w-[98%]' : 'w-0']">Zortic</span>
                 
-                <div class="w-5 lg:w-7 h-5 lg:h-7 border-black dark:border-white border overflow-hidden animatable rounded-sm lg:rounded-lg" :class="[settings.data.isOpen ? 'ml-2' : '']">
+                <div class="w-5 lg:w-7 h-5 lg:h-7 border-black dark:border-white border overflow-hidden animatable rounded-sm lg:rounded-lg" >
                     <div class="w-1.5 bg-black dark:bg-white h-5 lg:h-7 animatable" :class="[settings.data.isOpen ? 'ml-2 w-3 lg:w-5' : '']" />
                 </div>
             </div>
+
             <nav class="flex flex-col bg-light-100 dark:bg-black" @mouseenter="() => isSelecting = true" @mouseleave="() => isSelecting = false">
                 <RouterLink 
                     v-for="{ icon, label, to }, key in navigationRoute" 
@@ -81,7 +82,7 @@ onKeyDown(e => e.key === 'b' && e.ctrlKey, toggleTab)
         </div>
     </aside>
 
-    <main class="pl-11 lg:pl-16 w-full max-w-screen overflow-x-hidden">
+    <main class="pl-10.75 lg:pl-15.5 w-screen max-w-screen overflow-x-hidden">
         <RouterView />
     </main>
 </template>
