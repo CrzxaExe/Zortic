@@ -28,6 +28,10 @@ const noteList = ref<Note[]>([
         content: "Ahok",
     },
 ]);
+
+const noteAction: Action[] = [
+
+]
 </script>
 
 <template>
@@ -53,7 +57,7 @@ const noteList = ref<Note[]>([
                 </div>
             </div>
 
-            <NoteList :list="noteList" :list-type="itemType" />
+            <NoteList :list="noteList" :actions="noteAction" :list-type="itemType" />
         </section>
     </article>
 </template>
