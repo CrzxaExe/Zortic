@@ -1,45 +1,19 @@
-import { BaseDirectory, exists, mkdir, readDir, readTextFile, remove, writeTextFile } from "@tauri-apps/plugin-fs";
+import { invoke } from "@tauri-apps/api/core";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useNotesStore = defineStore("notes", async () => {
-    const list = ref<Note[]>([]);
-    const activeNote = ref<Note | null>(null);
-    const isLoading = ref(false);
-
-    const FOLDER_NAME = "notes";
-
-    async function initFolder() {
-    try {
-      const folderExists = await exists(FOLDER_NAME, { baseDir: BaseDirectory.AppLocalData });
-      if (!folderExists) {
-        await mkdir(FOLDER_NAME, { baseDir: BaseDirectory.AppLocalData, recursive: true });
-      }
-    } catch (error) {
-      console.error("Failed to initialize folder:", error);
-    }
-  }
+  const list = ref<Note[]>([]);
+  const activeNote = ref<Note | null>(null);
+  const isLoading = ref(false);
 
   async function loadAllNotes() {
     isLoading.value = true;
     list.value = [];
 
     try {
-      await initFolder();
-      const entries = await readDir(FOLDER_NAME, { baseDir: BaseDirectory.AppLocalData });
-      
-      for (const entry of entries) {
-        if (entry.isFile && entry.name.endsWith('.md')) {
-          const filePath = `${FOLDER_NAME}/${entry.name}`;
-          const content = await readTextFile(filePath, { baseDir: BaseDirectory.AppLocalData });
-          
-          list.value.push({
-            filename: entry.name,
-            title: entry.name.replace('.md', ''), 
-            content: content
-          });
-        }
-      }
+      const entries = await invoke<Note[]>("get_all_notes");
+      list.value = entries;
     } catch (error: unknown) {
       if(error instanceof Error) console.error("Failed to load note:", error);
     } finally {
@@ -49,17 +23,15 @@ export const useNotesStore = defineStore("notes", async () => {
 
   async function saveNote(title: string, content: string) {
     try {
-      const safeTitle = title.replace(/[^a-zA-Z0-9 -]/g, "");
-      const filename = `${safeTitle}.md`;
-      const filePath = `${FOLDER_NAME}/${filename}`;
-
-      await writeTextFile(filePath, content, { baseDir: BaseDirectory.AppLocalData });
+      const savedNote = await invoke<Note | null>("save_note", { title, content });
+      if(!savedNote) throw new Error("Backend not response");
       
-      const existingIndex = list.value.findIndex(n => n.filename === filename);
+      const existingIndex = list.value.findIndex(n => n.filename === savedNote.filename);
       if (existingIndex !== -1) {
+        list.value[existingIndex].title = title;
         list.value[existingIndex].content = content;
       } else {
-        list.value.push({ filename, title: safeTitle, content });
+        list.value.push(savedNote);
       }
 
     } catch (error: unknown) {
@@ -69,11 +41,9 @@ export const useNotesStore = defineStore("notes", async () => {
 
   async function deleteNote(filename: string) {
     try {
-      const filePath = `${FOLDER_NAME}/${filename}`;
-      await remove(filePath, { baseDir: BaseDirectory.AppLocalData });
+      await invoke('delete_note', { filename });
       
       list.value = list.value.filter(n => n.filename !== filename);
-      
       if (activeNote.value && activeNote.value.filename === filename) {
         activeNote.value = null;
       }
@@ -90,7 +60,6 @@ export const useNotesStore = defineStore("notes", async () => {
         list,
         activeNote,
 
-        initFolder,
         loadAllNotes,
         saveNote,
         deleteNote,

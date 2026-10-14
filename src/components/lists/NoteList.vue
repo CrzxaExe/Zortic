@@ -3,12 +3,15 @@ import ArchiveIcon from '../icons/ArchiveIcon.vue';
 import NoteItem from '../items/NoteItem.vue';
 
 interface Props {
-    actions: Action[]
     list: Note[]
     listType: number
+    actions: (Action & ActionFunction)[]
+    floatingFunction: (event: PointerEvent) => void
+    closeFloatingFunction: () => void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
 </script>
 
 <template>
@@ -17,13 +20,13 @@ defineProps<Props>()
             class="mt-2 lg:mt-4" 
             :class="[
                 [
-                    'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 lg:gap-3',
+                    'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 lg:gap-3',
                     'flex flex-col'
                 ][listType]
             ]"
         >
             <template v-for="note, i in list">
-                <NoteItem :list-type="listType" :note :actions :index="i" />
+                <NoteItem :list-type="listType" :floating-function :close-floating-function :note :actions :index="i" />
             </template>
         </div>
     </template>

@@ -35,7 +35,7 @@ const router = createRouter({
                     meta: {
                         title: "Zortic | Motes"
                     },
-                    component: async () => await import("../views/NotesView.vue"),
+                    component: async () => await import("../views/notes/NotesView.vue"),
                 },
                 {
                     path: "settings",

@@ -14,5 +14,9 @@ type Note = {
 
 type Action = {
     label: string;
-    icon:  DefineComponent<{}, {}, any>
+    icon:  DefineComponent<{}, {}, any>;
+}
+
+type ActionFunction = {
+  callback: (...args: any[]) => void;
 }
