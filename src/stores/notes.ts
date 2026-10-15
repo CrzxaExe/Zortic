@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-export const useNotesStore = defineStore("notes", async () => {
+export const useNotesStore = defineStore("notes", () => {
   const list = ref<Note[]>([]);
   const activeNote = ref<Note | null>(null);
   const isLoading = ref(false);
@@ -39,6 +39,17 @@ export const useNotesStore = defineStore("notes", async () => {
     }
   }
 
+  async function renameNote(oldNote: Note, newNote: Note) {
+    try {
+      if(oldNote.title === newNote.title) return await saveNote(newNote.title, newNote.content);
+
+      await deleteNote(oldNote.filename);
+      await saveNote(newNote.title, newNote.content);
+    } catch (error: unknown) {
+      if(error instanceof Error) console.error("Failed to rename note:", error);
+    }
+  }
+
   async function deleteNote(filename: string) {
     try {
       await invoke('delete_note', { filename });
@@ -56,13 +67,14 @@ export const useNotesStore = defineStore("notes", async () => {
     activeNote.value = note;
   }
 
-    return {
-        list,
-        activeNote,
+  return {
+    list,
+    activeNote,
 
-        loadAllNotes,
-        saveNote,
-        deleteNote,
-        setActiveNote,
-    }
+    loadAllNotes,
+    saveNote,
+    renameNote,
+    deleteNote,
+    setActiveNote,
+  }
 })

@@ -6,7 +6,7 @@ interface Props {
     list: Note[]
     listType: number
     actions: (Action & ActionFunction)[]
-    floatingFunction: (event: PointerEvent) => void
+    floatingFunction: (event: PointerEvent, note: Note) => void
     closeFloatingFunction: () => void
 }
 

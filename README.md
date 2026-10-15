@@ -1,6 +1,6 @@
 # Zortic
 
-Desktop app for easing me
+Desktop app for easing me. Its a daily app with extra tools
 
 ## TechStack
 
@@ -10,3 +10,8 @@ Desktop app for easing me
 - Vue
 
 ## Features
+
+### Notes
+ 
+Just like other notes app, there is CRUD method, sorting logic, collection and export into something.
+UI design just so simple, it will easier other people use this app.
