@@ -20,3 +20,9 @@ type Action = {
 type ActionFunction = {
   callback: (...args: any[]) => void;
 }
+
+type CurrencyOptions = {
+  currency: string;
+  currencyPosition?: 'back' | 'front';
+  decimal?: number;
+}

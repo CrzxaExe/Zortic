@@ -6,14 +6,35 @@ fn greet(name: &str) -> String {
 
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::sync::Mutex;
+use sysinfo::{Components, System};
 use std::path::PathBuf;
-use tauri::Manager;
+use tauri::{Manager, State};
 
 #[derive(Serialize, Deserialize)]
 pub struct Note {
     filename: String,
     title: String,
     content: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TempReading {
+    label: String,
+    temperature: Option<f32>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SystemPerformance {
+    cpu_usage: f32,
+    total_ram: u64,
+    used_ram: u64,
+    temperatures: Vec<TempReading>,
+}
+
+pub struct AppState {
+    pub sys: Mutex<System>,
+    pub components: Mutex<Components>,
 }
 
 fn get_notes_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf, String> {
@@ -58,6 +79,38 @@ fn get_all_notes(app_handle: tauri::AppHandle) -> Result<Vec<Note>, String> {
 }
 
 #[tauri::command]
+fn get_performance_stats(state: State<'_, AppState>) -> SystemPerformance {
+    let mut sys = state.sys.lock().unwrap();
+    let mut components = state.components.lock().unwrap();
+    
+    sys.refresh_cpu_usage();
+    sys.refresh_memory();
+    components.refresh(false);
+
+    let cpus = sys.cpus();
+    let avg_cpu: f32 = if !cpus.is_empty() {
+        cpus.iter().map(|c| c.cpu_usage()).sum::<f32>() / cpus.len() as f32
+    } else {
+        0.0
+    };
+
+    let mut temps = Vec::new();
+    for component in components.iter() {
+        temps.push(TempReading {
+            label: component.label().to_string(),
+            temperature: component.temperature(),
+        });
+    }
+
+    SystemPerformance {
+        cpu_usage: avg_cpu,
+        total_ram: sys.total_memory(),
+        used_ram: sys.used_memory(),
+        temperatures: temps,
+    }
+}
+
+#[tauri::command]
 fn save_note(app_handle: tauri::AppHandle, title: String, content: String) -> Result<Note, String> {
     let dir = get_notes_dir(&app_handle)?;
     
@@ -93,6 +146,16 @@ fn delete_note(app_handle: tauri::AppHandle, filename: String) -> Result<(), Str
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .setup(|app| {
+            let sys = System::new_all();
+            let components = Components::new();
+            
+            app.manage(AppState {
+                sys: Mutex::new(sys),
+                components: Mutex::new(components),
+            });
+            Ok(())
+        })
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
@@ -102,7 +165,8 @@ pub fn run() {
             greet,
             get_all_notes,
             save_note,
-            delete_note
+            delete_note,
+            get_performance_stats
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

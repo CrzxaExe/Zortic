@@ -4,7 +4,7 @@ import { ref } from "vue";
 
 export const useNotesStore = defineStore("notes", () => {
   const list = ref<Note[]>([]);
-  const activeNote = ref<Note | null>(null);
+  const activeNote = ref<Note>({ title: '', content: '', filename: ''});
   const isLoading = ref(false);
 
   async function loadAllNotes() {
@@ -34,6 +34,8 @@ export const useNotesStore = defineStore("notes", () => {
         list.value.push(savedNote);
       }
 
+      activeNote.value = JSON.parse(JSON.stringify({ title: '', content: '', filename: ''}))
+
     } catch (error: unknown) {
       if(error instanceof Error) console.error("Failed to save note:", error);
     }
@@ -56,7 +58,7 @@ export const useNotesStore = defineStore("notes", () => {
       
       list.value = list.value.filter(n => n.filename !== filename);
       if (activeNote.value && activeNote.value.filename === filename) {
-        activeNote.value = null;
+        activeNote.value = { title: '', content: '', filename: ''};
       }
     } catch (error: unknown) {
       if(error instanceof Error) console.error("Failed to delete note:", error);

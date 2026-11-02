@@ -2,6 +2,9 @@
 
 Desktop app for easing me. Its a daily app with extra tools
 
+> [!IMPORTANT]
+> Just studiying Tauri
+
 ## TechStack
 
 - Bun

@@ -17,7 +17,7 @@ const props = defineProps<Props>()
 <template>
     <template v-if="list.length > 0">
         <div 
-            class="mt-2 lg:mt-4" 
+            class="mt-2 lg:mt-4 pb-4"
             :class="[
                 [
                     'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 lg:gap-3',
@@ -32,7 +32,7 @@ const props = defineProps<Props>()
     </template>
 
     <template v-else>
-        <div class="flex items-center justify-center py-2 lg:py-3">
+        <div class="flex items-center justify-center pt-2 lg:pt-3 pb-4">
             <div class="flex flex-col items-center">
                 <ArchiveIcon />
                 <h3 class="text-xl lg:text-2xl font-semibold">Its empty here</h3>
