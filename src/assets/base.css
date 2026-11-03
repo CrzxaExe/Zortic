@@ -3,17 +3,22 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --color-light-100: #e4f2f5;
-    --color-light-200: #dae2e8;
-    --color-light-300: #c5d3e0;
-    --color-light-400: #b2c0cf;
-    --color-light-500: #a3b4c4;
+    --color-light-100: #eef6f5;
+    --color-light-200: #deedeb;
+    --color-light-300: #bcdcd8;
+    --color-light-400: #9bcac4;
+    --color-light-500: #79b9b0;
 
-    --color-dark-600: #767676;
-    --color-dark-700: #606060;
-    --color-dark-800: #464646;
-    --color-dark-900: #303030;
-    --color-dark-950: #242424;
+    --color-dark-100: #dee2e6;
+    --color-dark-200: #f8f9fa;
+    --color-dark-300: #e9ecef;
+    --color-dark-400: #dee2e6;
+    --color-dark-500: #ced4da;
+    --color-dark-600: #adb5bd;
+    --color-dark-700: #6c757d;
+    --color-dark-800: #495057;
+    --color-dark-900: #343a40;
+    --color-dark-950: #212529;
 
     --color-primary-600: #1c8eeb;
 }

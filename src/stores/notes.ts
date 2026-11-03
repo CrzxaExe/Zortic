@@ -21,35 +21,36 @@ export const useNotesStore = defineStore("notes", () => {
     }
   }
 
-  async function saveNote(title: string, content: string) {
+  async function saveNote(note: Note, callback?: (...args: any[]) => void) {
+    if (activeNote.value.title.length < 1 || activeNote.value.content.length < 1) return
+
     try {
-      const savedNote = await invoke<Note | null>("save_note", { title, content });
+      const savedNote = await invoke<Note>("save_note", {
+        filename: note.filename || null,
+        title: note.title,
+        content: note.content,
+      });
       if(!savedNote) throw new Error("Backend not response");
       
-      const existingIndex = list.value.findIndex(n => n.filename === savedNote.filename);
+      const existingIndex = list.value.findIndex(n => n.filename === note.filename);
       if (existingIndex !== -1) {
-        list.value[existingIndex].title = title;
-        list.value[existingIndex].content = content;
+        list.value[existingIndex] = savedNote;
       } else {
         list.value.push(savedNote);
       }
 
-      activeNote.value = JSON.parse(JSON.stringify({ title: '', content: '', filename: ''}))
+      resetActiveNote()
+      callback?.()
 
+      return savedNote;
     } catch (error: unknown) {
-      if(error instanceof Error) console.error("Failed to save note:", error);
+      console.error("Failed to save note:", error);
+      throw error;
     }
   }
 
   async function renameNote(oldNote: Note, newNote: Note) {
-    try {
-      if(oldNote.title === newNote.title) return await saveNote(newNote.title, newNote.content);
-
-      await deleteNote(oldNote.filename);
-      await saveNote(newNote.title, newNote.content);
-    } catch (error: unknown) {
-      if(error instanceof Error) console.error("Failed to rename note:", error);
-    }
+    return await saveNote({ ...newNote, filename: oldNote.filename });
   }
 
   async function deleteNote(filename: string) {
@@ -69,6 +70,10 @@ export const useNotesStore = defineStore("notes", () => {
     activeNote.value = note;
   }
 
+  function resetActiveNote() {
+    activeNote.value = JSON.parse(JSON.stringify({ title: '', content: '', filename: '' }))
+  }
+
   return {
     list,
     activeNote,
@@ -78,5 +83,6 @@ export const useNotesStore = defineStore("notes", () => {
     renameNote,
     deleteNote,
     setActiveNote,
+    resetActiveNote,
   }
 })

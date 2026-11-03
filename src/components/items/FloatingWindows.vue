@@ -142,23 +142,24 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div ref="windowRef" @mousedown="bringToFront"
-        class="absolute bg-light-400 dark:bg-dark-900 min-w-100 min-h-32 overflow-auto rounded-lg" :style="{
+    <div ref="windowRef" @mousedown="bringToFront" class="absolute flex flex-col min-w-120 min-h-34 overflow-auto"
+        :style="{
             left: position.x + 'px',
             top: position.y + 'px',
             width: size.width ? size.width + 'px' : undefined,
             height: size.height ? size.height + 'px' : undefined,
             zIndex: localZIndex
         }">
-        <div class="relative min-h-full w-full">
-            <div class="w-full sticky top-0 z-1 flex justify-between backdrop-blur-lg px-3 lg:px-4 py-1 shadow-lg animatable"
-                :class="isDragging ? 'cursor-move bg-primary-600' : 'bg-light-500/50 dark:bg-dark-800/50'"
+        <div class="relative flex flex-1 min-h-0 w-full flex-col">
+            <div class="w-full sticky top-0 z-1 flex justify-between backdrop-blur-lg px-3 lg:px-4 py-1 rounded-lg shadow-lg animatable"
+                :class="isDragging ? 'cursor-grabbing bg-primary-600' : 'cursor-grab bg-light-500/50 dark:bg-dark-800/50'"
                 @mousedown="startDrag">
                 <span class="tracking-tighter">{{ title }}</span>
-                <button @click.stop="emit('close')" class="font-mono">x</button>
+                <button @click.stop="emit('close')" class="font-mono px-1 cursor-pointer">x</button>
             </div>
 
-            <div class="h-full w-full">
+            <div
+                class="relative flex flex-1 min-h-0 w-full flex-col border border-light-500 dark:border-dark-800 shadow-lg rounded-lg bg-light-400/30 dark:bg-dark-900/30 backdrop-blur-lg mt-1">
                 <slot></slot>
             </div>
         </div>

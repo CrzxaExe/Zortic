@@ -4,6 +4,7 @@ import NoteItem from '../items/NoteItem.vue';
 
 interface Props {
     list: Note[]
+    windowState: boolean
     listType: number
     actions: (Action & ActionFunction)[]
     floatingFunction: (event: PointerEvent, note: Note) => void
@@ -16,17 +17,15 @@ const props = defineProps<Props>()
 
 <template>
     <template v-if="list.length > 0">
-        <div 
-            class="mt-2 lg:mt-4 pb-4"
-            :class="[
-                [
-                    'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 lg:gap-3',
-                    'flex flex-col'
-                ][listType]
-            ]"
-        >
+        <div class="mt-2 lg:mt-4 pb-4" :class="[
+            [
+                'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 lg:gap-3',
+                'flex flex-col'
+            ][listType]
+        ]">
             <template v-for="note, i in list">
-                <NoteItem :list-type="listType" :floating-function :close-floating-function :note :actions :index="i" />
+                <NoteItem :list-type="listType" :floating-function :close-floating-function :note :actions :index="i"
+                    @click="() => windowState = true" />
             </template>
         </div>
     </template>

@@ -4,17 +4,12 @@ import SearchFrom from '../../components/forms/SearchFrom.vue';
 import DefaultActions from '../../components/actions/DefaultActions.vue';
 import { actionNote, itemTypes } from '../../constants/list.ts';
 import NoteList from '../../components/lists/NoteList.vue';
-import FloatingMenu from '../../components/menu/FloatingMenu.vue';
-import EditIcon from '../../components/icons/EditIcon.vue';
-import RenameIcon from '../../components/icons/RenameIcon.vue';
-import FolderIcon from '../../components/icons/FolderIcon.vue';
-import TrashIcon from '../../components/icons/TrashIcon.vue';
+import FloatingMenu from '../../components/items/FloatingMenu.vue';
 import { useNotesStore } from '../../stores/notes.ts';
-import FileIcon from '../../components/icons/FileIcon.vue';
-import JSONIcon from '../../components/icons/JSONIcon.vue';
 import FloatingWindows from '../../components/items/FloatingWindows.vue';
 import NoteSaveForm from '../../components/forms/NoteSaveForm.vue';
 import { useWindowsMenu } from '../../stores/windows.ts';
+import { Icons } from '../../constants/icons.ts';
 
 const store = useNotesStore()
 const windows = useWindowsMenu()
@@ -26,11 +21,6 @@ const searchValue = ref('')
 
 function setItemType(index: number) {
     itemType.value = index
-}
-
-async function save() {
-    await store.saveNote(store.activeNote.title, store.activeNote.content)
-    windows.NoteMenu.open = false
 }
 
 function floatingMenu(event: PointerEvent, note: Note) {
@@ -48,22 +38,27 @@ const actions: { label?: string; actions: (Action & ActionFunction)[] }[] = [
     {
         actions: [
             {
-                icon: EditIcon,
+                icon: Icons.Edit,
                 label: "Edit",
-                callback: () => { },
+                callback: (event: MouseEvent, note: Note) => {
+                    store.setActiveNote(note)
+                    windows.NoteMenu.pos.x = event.clientX
+                    windows.NoteMenu.pos.y = event.clientY
+                    windows.NoteMenu.open = true
+                },
             },
             {
-                icon: RenameIcon,
+                icon: Icons.Rename,
                 label: "Rename",
                 callback: () => { },
             },
             {
-                icon: FolderIcon,
+                icon: Icons.Folder,
                 label: "Move",
                 callback: () => { },
             },
             {
-                icon: TrashIcon,
+                icon: Icons.Trash,
                 label: "Delete",
                 callback: (_: MouseEvent, note: Note) => {
                     store.deleteNote(note.filename)
@@ -72,16 +67,16 @@ const actions: { label?: string; actions: (Action & ActionFunction)[] }[] = [
         ]
     },
     {
-        label: "Export",
+        label: "Export as",
         actions: [
             {
-                icon: FileIcon,
-                label: "as File",
+                icon: Icons.File,
+                label: "File",
                 callback: () => { },
             },
             {
-                icon: JSONIcon,
-                label: "as JSON",
+                icon: Icons.JSON,
+                label: "JSON",
                 callback: () => { },
             },
         ]
@@ -99,11 +94,13 @@ onMounted(() => {
 
 <template>
     <article
-        class="lg:pl-0.5 pr-1 mt-2 flex flex-col relative gap-2 min-h-full max-h-[calc(100vh-0.5rem)] overflow-x-hidden overflow-y-scroll">
-        <FloatingWindows :title="store.activeNote.filename ? store.activeNote.filename : 'Create Note'"
+        class="lg:pl-0.5 pr-1 mt-2 flex flex-col relative gap-2 min-h-full max-h-[calc(100vh-0.5rem)] overflow-x-hidden overflow-y-hidden">
+        <FloatingWindows :title="store.activeNote.filename ? 'Edit Note' : 'Create Note'"
             :initial-x="windows.NoteMenu.pos.x" :initial-y="windows.NoteMenu.pos.y" v-if="windows.NoteMenu.open"
             @close="() => windows.NoteMenu.open = false">
-            <NoteSaveForm v-model="store.activeNote" @save="save" />
+            <NoteSaveForm v-model="store.activeNote" @save="() => {
+                store.saveNote(store.activeNote, () => { windows.NoteMenu.open = false })
+            }" />
         </FloatingWindows>
         <FloatingMenu :list-actions="actions" v-if="isFloatingMenuOpen" :x="cursor.x" :y="cursor.y"
             :title="store.activeNote?.title" :note="store.activeNote" />
@@ -126,7 +123,7 @@ onMounted(() => {
                 <div
                     class="flex items-center rounded-xl border-2 border-dark-950 text-dark-950 dark:border-white dark:text-white overflow-hidden">
                     <i v-for="(item, i) in itemTypes" :key="i" @click="() => setItemType(i)"
-                        class="p-1.5 cursor-pointer hover:bg-primary-600"
+                        class="p-1 cursor-pointer hover:bg-primary-600"
                         :class="itemType === i ? 'bg-black dark:bg-white text-white dark:text-black' : ''">
                         <component :is="item" />
                     </i>
@@ -134,7 +131,8 @@ onMounted(() => {
             </div>
 
             <NoteList :close-floating-function="closeFloatingMenu" :floating-function="floatingMenu"
-                :list="filterList(store.list)" :actions="actions[0].actions" :list-type="itemType" />
+                :list="filterList(store.list)" :actions="actions[0].actions" :window-state="windows.NoteMenu.open"
+                :list-type="itemType" />
 
         </section>
 

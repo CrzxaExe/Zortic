@@ -1,36 +1,34 @@
-import FolderIcon from "../components/icons/FolderIcon.vue";
-import GridIcon from "../components/icons/GridIcon.vue";
-import ImportIcon from "../components/icons/ImportIcon.vue";
-import PlusIcon from "../components/icons/PlusIcon.vue";
-import RowIcon from "../components/icons/RowIcon.vue";
+import { useNotesStore } from "../stores/notes.ts";
 import { useWindowsMenu } from "../stores/windows.ts";
+import { Icons } from "./icons.ts";
 
 const windows = useWindowsMenu();
+const store = useNotesStore();
 
 export const itemTypes = [
-    GridIcon,
-    RowIcon,
+    Icons.Grid,
+    Icons.Row,
 ];
 
 export const actionNote: (Action & ActionFunction)[] = [
     {
-        icon: PlusIcon,
+        icon: Icons.Plus,
         label: "Add",
         callback: (event: MouseEvent) => {
             if(windows.NoteMenu.open) return
-
+            store.resetActiveNote()
             windows.NoteMenu.open = true
             windows.NoteMenu.pos.x = event.clientX
             windows.NoteMenu.pos.y = event.clientY
         }
     },
     {
-        icon: ImportIcon,
+        icon: Icons.Import,
         label: "Import",
         callback: () => {}
     },
     {
-        icon: FolderIcon,
+        icon: Icons.Folder,
         label: "Collection",
         callback: () => {}
     },

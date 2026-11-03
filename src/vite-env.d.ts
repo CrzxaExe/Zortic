@@ -26,3 +26,5 @@ type CurrencyOptions = {
   currencyPosition?: 'back' | 'front';
   decimal?: number;
 }
+
+type ObjectValues<T> = T[keyof T];
