@@ -3,8 +3,14 @@ import { reactive } from "vue";
 
 export const useWindowsMenu = defineStore("windows", () => {
     const NoteMenu = reactive({
-        open: false,
-        pos: { x: 0, y: 0 },
+        edit: {
+            open: false,
+            pos: { x: 0, y: 0 },
+        },
+        display: {
+            open: false,
+            pos: { x: 0, y: 0 },
+        }
     })
 
     return {

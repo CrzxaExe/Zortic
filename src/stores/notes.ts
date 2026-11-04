@@ -5,6 +5,7 @@ import { ref } from "vue";
 export const useNotesStore = defineStore("notes", () => {
   const list = ref<Note[]>([]);
   const activeNote = ref<Note>({ title: '', content: '', filename: ''});
+  const displayNote = ref<Note>({ title: '', content: '', filename: ''});
   const isLoading = ref(false);
 
   async function loadAllNotes() {
@@ -73,10 +74,19 @@ export const useNotesStore = defineStore("notes", () => {
   function resetActiveNote() {
     activeNote.value = JSON.parse(JSON.stringify({ title: '', content: '', filename: '' }))
   }
+  
+  function setDisplayNote(note: Note) {
+    displayNote.value = note;
+  }
+
+  function resetDisplayNote() {
+    displayNote.value = JSON.parse(JSON.stringify({ title: '', content: '', filename: '' }))
+  }
 
   return {
     list,
     activeNote,
+    displayNote,
 
     loadAllNotes,
     saveNote,
@@ -84,5 +94,7 @@ export const useNotesStore = defineStore("notes", () => {
     deleteNote,
     setActiveNote,
     resetActiveNote,
+    setDisplayNote,
+    resetDisplayNote,
   }
 })

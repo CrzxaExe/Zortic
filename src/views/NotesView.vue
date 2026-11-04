@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import SearchFrom from '../../components/forms/SearchFrom.vue';
-import DefaultActions from '../../components/actions/DefaultActions.vue';
-import { actionNote, itemTypes } from '../../constants/list.ts';
-import NoteList from '../../components/lists/NoteList.vue';
-import FloatingMenu from '../../components/items/FloatingMenu.vue';
-import { useNotesStore } from '../../stores/notes.ts';
-import FloatingWindows from '../../components/items/FloatingWindows.vue';
-import NoteSaveForm from '../../components/forms/NoteSaveForm.vue';
-import { useWindowsMenu } from '../../stores/windows.ts';
-import { Icons } from '../../constants/icons.ts';
+import SearchFrom from '../components/forms/SearchFrom.vue';
+import DefaultActions from '../components/actions/DefaultActions.vue';
+import { actionNote, itemTypes } from '../constants/list.ts';
+import NoteList from '../components/lists/NoteList.vue';
+import FloatingMenu from '../components/items/FloatingMenu.vue';
+import { useNotesStore } from '../stores/notes.ts';
+import FloatingWindows from '../components/items/FloatingWindows.vue';
+import NoteSaveForm from '../components/forms/NoteSaveForm.vue';
+import { useWindowsMenu } from '../stores/windows.ts';
+import { Icons } from '../constants/icons.ts';
+import NotesDisplayView from './NotesDisplayView.vue';
 
 const store = useNotesStore()
 const windows = useWindowsMenu()
@@ -42,9 +43,9 @@ const actions: { label?: string; actions: (Action & ActionFunction)[] }[] = [
                 label: "Edit",
                 callback: (event: MouseEvent, note: Note) => {
                     store.setActiveNote(note)
-                    windows.NoteMenu.pos.x = event.clientX
-                    windows.NoteMenu.pos.y = event.clientY
-                    windows.NoteMenu.open = true
+                    windows.NoteMenu.edit.pos.x = event.clientX
+                    windows.NoteMenu.edit.pos.y = event.clientY
+                    windows.NoteMenu.edit.open = true
                 },
             },
             {
@@ -95,13 +96,22 @@ onMounted(() => {
 <template>
     <article
         class="lg:pl-0.5 pr-1 mt-2 flex flex-col relative gap-2 min-h-full max-h-[calc(100vh-0.5rem)] overflow-x-hidden overflow-y-hidden">
+
+        <!-- Save Note Window -->
         <FloatingWindows :title="store.activeNote.filename ? 'Edit Note' : 'Create Note'"
-            :initial-x="windows.NoteMenu.pos.x" :initial-y="windows.NoteMenu.pos.y" v-if="windows.NoteMenu.open"
-            @close="() => windows.NoteMenu.open = false">
+            :initial-x="windows.NoteMenu.edit.pos.x" :initial-y="windows.NoteMenu.edit.pos.y"
+            v-if="windows.NoteMenu.edit.open" @close="() => windows.NoteMenu.edit.open = false">
             <NoteSaveForm v-model="store.activeNote" @save="() => {
-                store.saveNote(store.activeNote, () => { windows.NoteMenu.open = false })
+                store.saveNote(store.activeNote, () => { windows.NoteMenu.edit.open = false })
             }" />
         </FloatingWindows>
+
+        <FloatingWindows :title="store.displayNote.title" :initial-x="windows.NoteMenu.display.pos.x"
+            :actions="actions[0].actions" :initial-y="windows.NoteMenu.display.pos.y"
+            v-if="windows.NoteMenu.display.open" @close="() => windows.NoteMenu.display.open = false">
+            <NotesDisplayView :content="store.displayNote.content" />
+        </FloatingWindows>
+
         <FloatingMenu :list-actions="actions" v-if="isFloatingMenuOpen" :x="cursor.x" :y="cursor.y"
             :title="store.activeNote?.title" :note="store.activeNote" />
 
@@ -131,8 +141,12 @@ onMounted(() => {
             </div>
 
             <NoteList :close-floating-function="closeFloatingMenu" :floating-function="floatingMenu"
-                :list="filterList(store.list)" :actions="actions[0].actions" :window-state="windows.NoteMenu.open"
-                :list-type="itemType" />
+                :list="filterList(store.list)" :actions="actions[0].actions" :open-function="(event: MouseEvent, note: Note) => {
+                    store.setDisplayNote(note)
+                    windows.NoteMenu.display.open = true
+                    windows.NoteMenu.display.pos.x = event.clientX - 20
+                    windows.NoteMenu.display.pos.y = event.clientY - 10
+                }" :list-type="itemType" />
 
         </section>
 

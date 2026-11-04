@@ -15,11 +15,11 @@ export const actionNote: (Action & ActionFunction)[] = [
         icon: Icons.Plus,
         label: "Add",
         callback: (event: MouseEvent) => {
-            if(windows.NoteMenu.open) return
+            if(windows.NoteMenu.edit.open) return
             store.resetActiveNote()
-            windows.NoteMenu.open = true
-            windows.NoteMenu.pos.x = event.clientX
-            windows.NoteMenu.pos.y = event.clientY
+            windows.NoteMenu.edit.open = true
+            windows.NoteMenu.edit.pos.x = event.clientX
+            windows.NoteMenu.edit.pos.y = event.clientY
         }
     },
     {

@@ -4,9 +4,9 @@ import NoteItem from '../items/NoteItem.vue';
 
 interface Props {
     list: Note[]
-    windowState: boolean
     listType: number
     actions: (Action & ActionFunction)[]
+    openFunction?: (event: MouseEvent, note: Note) => void
     floatingFunction: (event: PointerEvent, note: Note) => void
     closeFloatingFunction: () => void
 }
@@ -25,7 +25,7 @@ const props = defineProps<Props>()
         ]">
             <template v-for="note, i in list">
                 <NoteItem :list-type="listType" :floating-function :close-floating-function :note :actions :index="i"
-                    @click="() => windowState = true" />
+                    @click="openFunction" />
             </template>
         </div>
     </template>

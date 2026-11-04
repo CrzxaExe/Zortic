@@ -1,5 +1,5 @@
 <script lang="ts">
-let globalZIndex = 1000;
+let globalZIndex = 99;
 </script>
 
 <script setup lang="ts">
@@ -9,6 +9,7 @@ const props = defineProps({
     title: { type: String, default: "New Window" },
     initialX: { type: Number, default: 100 },
     initialY: { type: Number, default: 100 },
+    actions: { type: Array<(Action & ActionFunction)>, default: [] },
 })
 
 const emit = defineEmits<{
@@ -142,8 +143,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div ref="windowRef" @mousedown="bringToFront" class="absolute flex flex-col min-w-120 min-h-34 overflow-auto"
-        :style="{
+    <div ref="windowRef" @mousedown="bringToFront"
+        class="absolute flex flex-col min-w-120 min-h-34 overflow-x-hidden overflow-y-scroll" :style="{
             left: position.x + 'px',
             top: position.y + 'px',
             width: size.width ? size.width + 'px' : undefined,
@@ -151,15 +152,24 @@ onBeforeUnmount(() => {
             zIndex: localZIndex
         }">
         <div class="relative flex flex-1 min-h-0 w-full flex-col">
-            <div class="w-full sticky top-0 z-1 flex justify-between backdrop-blur-lg px-3 lg:px-4 py-1 rounded-lg shadow-lg animatable"
+            <div class="w-full sticky top-0 z-1 flex justify-between backdrop-blur-lg px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg shadow-lg animatable"
                 :class="isDragging ? 'cursor-grabbing bg-primary-600' : 'cursor-grab bg-light-500/50 dark:bg-dark-800/50'"
                 @mousedown="startDrag">
                 <span class="tracking-tighter">{{ title }}</span>
-                <button @click.stop="emit('close')" class="font-mono px-1 cursor-pointer">x</button>
+
+                <div class="flex gap-2">
+                    <div class="flex gap-2">
+                        <button v-for="action, i in actions" :key="i" @click="action.callback">
+                            <component :is="action.icon" />
+                        </button>
+                    </div>
+
+                    <button @click.stop="emit('close')" class="font-mono px-1 cursor-pointer">x</button>
+                </div>
             </div>
 
             <div
-                class="relative flex flex-1 min-h-0 w-full flex-col border border-light-500 dark:border-dark-800 shadow-lg rounded-lg bg-light-400/30 dark:bg-dark-900/30 backdrop-blur-lg mt-1">
+                class="relative flex flex-1 min-h-0 max-h-full w-full flex-col border border-light-500 dark:border-dark-800 shadow-lg rounded-lg bg-light-400/30 dark:bg-dark-900/30 backdrop-blur-lg mt-1">
                 <slot></slot>
             </div>
         </div>
