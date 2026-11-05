@@ -3,6 +3,9 @@ import FinanceIcon from "../components/icons/FinanceIcon.vue";
 import NoteIcon from "../components/icons/NoteIcon.vue";
 import ToolsIcon from "../components/icons/ToolsIcon.vue";
 
+/**
+ * Route Constant
+ */
 export const navigationRoute = [
     {
         to: "/",

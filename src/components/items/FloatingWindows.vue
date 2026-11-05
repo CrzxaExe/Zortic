@@ -39,8 +39,19 @@ const bringToFront = () => {
     localZIndex.value = globalZIndex
 }
 
+const constrainToViewport = () => {
+    const element = windowRef.value
+    if (!element) return
+
+    const rect = element.getBoundingClientRect()
+    position.value.x = clamp(position.value.x, 0, Math.max(0, window.innerWidth - rect.width))
+    position.value.y = clamp(position.value.y, 0, Math.max(0, window.innerHeight - rect.height))
+}
+
 onMounted(() => {
     bringToFront()
+    constrainToViewport()
+    window.addEventListener('resize', constrainToViewport)
 })
 
 const onDrag = (event: MouseEvent) => {
@@ -48,6 +59,11 @@ const onDrag = (event: MouseEvent) => {
 
     let newX = event.clientX - dragOffset.x;
     let newY = event.clientY - dragOffset.y;
+
+    if (newY <= 12) {
+        newY = 0;
+        size.value = { ...size.value, height: window.innerHeight };
+    }
 
     const rect = windowRef.value.getBoundingClientRect();
     const maxX = window.innerWidth - rect.width;
@@ -139,14 +155,19 @@ const startResize = (event: PointerEvent, edge: ResizeEdge) => {
 
 onBeforeUnmount(() => {
     stopResize()
+    window.removeEventListener('resize', constrainToViewport)
 })
 </script>
 
 <template>
     <div ref="windowRef" @mousedown="bringToFront"
-        class="absolute flex flex-col min-w-120 min-h-34 overflow-x-hidden overflow-y-scroll" :style="{
+        class="absolute flex flex-col min-w-120 min-h-34 max-h-screen overflow-x-hidden overflow-y-scroll" :style="{
             left: position.x + 'px',
             top: position.y + 'px',
+            minWidth: `min(30rem, max(0px, calc(100vw - ${position.x}px)))`,
+            minHeight: `min(8.5rem, max(0px, calc(100vh - ${position.y}px)))`,
+            maxWidth: `max(0px, calc(100vw - ${position.x}px))`,
+            maxHeight: `max(0px, calc(100vh - ${position.y}px))`,
             width: size.width ? size.width + 'px' : undefined,
             height: size.height ? size.height + 'px' : undefined,
             zIndex: localZIndex

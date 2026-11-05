@@ -13,13 +13,11 @@ export const itemTypes = [
 export const actionNote: (Action & ActionFunction)[] = [
     {
         icon: Icons.Plus,
-        label: "Add",
+        label: "Create",
         callback: (event: MouseEvent) => {
             if(windows.NoteMenu.edit.open) return
             store.resetActiveNote()
-            windows.NoteMenu.edit.open = true
-            windows.NoteMenu.edit.pos.x = event.clientX
-            windows.NoteMenu.edit.pos.y = event.clientY
+            windows.setStateAndPos('edit', true, event.clientX, event.clientY)
         }
     },
     {

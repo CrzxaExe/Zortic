@@ -2,6 +2,9 @@ import { invoke } from "@tauri-apps/api/core";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
+/**
+ * Notes Store
+ */
 export const useNotesStore = defineStore("notes", () => {
   const list = ref<Note[]>([]);
   const activeNote = ref<Note>({ title: '', content: '', filename: ''});
@@ -84,11 +87,36 @@ export const useNotesStore = defineStore("notes", () => {
   }
 
   return {
+    /**
+     * Notes data store
+     */
     list,
+
+    /**
+     * Active note (Edit / Save)
+     */
     activeNote,
+
+    /**
+     * Displayed note
+     */
     displayNote,
 
+    /**
+     * Load Note on application storage
+     * 
+     * Not return anyting, note will be available on variable list
+     */
     loadAllNotes,
+
+    /**
+     * Edit or save note into storage
+     * 
+     * @param note Note want to save
+     * @param callback function that will be fire after successfully save the note
+     * 
+     * @returns Saved note or undefined
+     */
     saveNote,
     renameNote,
     deleteNote,

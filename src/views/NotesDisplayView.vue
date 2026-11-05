@@ -12,7 +12,7 @@ const md = computed(() => marked(props.content))
 </script>
 
 <template>
-    <div class="px-3 lg:px-4 py-2 block relative min-h-full overflow-scroll max-h-fit" v-html="md">
+    <div class="px-3 lg:px-4 py-2 block relative min-h-full overflow-scroll max-h-fits" v-html="md">
     </div>
 </template>
 
@@ -45,7 +45,7 @@ const md = computed(() => marked(props.content))
     }
 
     :deep(img) {
-        @apply block relative max-w-full max-h-full h-auto object-contain
+        @apply block relative max-w-full max-h-140 h-auto object-contain
     }
 }
 </style>

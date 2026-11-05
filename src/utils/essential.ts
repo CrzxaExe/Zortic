@@ -25,4 +25,18 @@ export const Essentials = {
     cloneObject(object: object) {
         return JSON.parse(JSON.stringify(object));
     },
+
+    /**
+     * Generate random string
+     * @param length lenght of generated ID, default 12
+     * @returns ID
+     */
+    generateID(length: number = 12): string {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+        let result = '';
+        for(let i = 0; i< length; i++) result += chars[Math.floor(Math.random() * chars.length)];
+
+        return result;
+    }
 }

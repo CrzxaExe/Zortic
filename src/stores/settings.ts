@@ -86,7 +86,18 @@ export const useSettings = defineStore("settings", () => {
          * @param state state sidebar
          */
         setToggle,
+
+        /**
+         * Synchronizing navigation index with url by referencing navigationRoutes
+         * 
+         * Comparing first text from splited url and comparing the id with navigationRoutes
+         * @param fullPath full path the url
+         */
         syncNavIndex,
+
+        /**
+         * Accessing setting file from storage
+         */
         loadSettings,
     };
 });
