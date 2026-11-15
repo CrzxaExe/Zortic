@@ -25,7 +25,7 @@ onKeyDown(e => e.key === 'b' && e.ctrlKey, toggleTab)
 
 <template>
     <aside
-        class="flex flex-col fixed left-1 top-2 h-screen max-h-[calc(100vh-1rem)] bg-light-100 dark:bg-black shadow-[4px_0px_0px_4px_#e4f2f5] dark:shadow-[2px_0px_0px_2px_#000000] w-full animatable rounded-lg overflow-hidden z-10"
+        class="flex flex-col fixed left-1 top-2 h-screen max-h-[calc(100vh-1rem)] bg-light-100 dark:bg-black w-full animatable rounded-lg overflow-hidden z-10"
         :class="[settings.data.isOpen ? 'max-w-60' : 'max-w-9 lg:max-w-13.5']">
         <div class="w-full relative flex flex-col shrink-0">
             <div class="flex items-center px-2 lg:px-2.5 pt-2 lg:pt-4 pb-4 lg:pb-6 w-full lg:max-w-60 overflow-hidden bg-light-300 dark:bg-dark-950"
@@ -78,7 +78,9 @@ onKeyDown(e => e.key === 'b' && e.ctrlKey, toggleTab)
         </div>
     </aside>
 
-    <main class="pl-10.75 lg:pl-15.5 w-screen max-w-screen overflow-x-hidden">
+    <main class="w-screen max-w-screen overflow-x-hidden animatable" :class="[
+        settings.data.isOpen ? 'pl-61.75 lg:pl-62.5' : 'pl-10.75 lg:pl-15.5'
+    ]">
         <RouterView />
     </main>
 </template>

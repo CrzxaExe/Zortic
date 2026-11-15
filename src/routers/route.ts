@@ -38,6 +38,20 @@ const router = createRouter({
                     component: async () => await import("../views/NotesView.vue"),
                 },
                 {
+                    path: "files",
+                    meta: {
+                        title: "Zortic | Files"
+                    },
+                    component: async () => await import("../views/FilesView.vue"),
+                },
+                {
+                    path: "system",
+                    meta: {
+                        title: "Zortic | System"
+                    },
+                    component: async () => await import("../views/SystemView.vue"),
+                },
+                {
                     path: "settings",
                     meta: {
                         title: "Zortic | Settings"

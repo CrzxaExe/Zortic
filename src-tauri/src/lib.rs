@@ -20,6 +20,66 @@ pub struct Note {
     content: String,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FileEntry {
+    name: String,
+    is_dir: bool,
+    size: u64,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FolderContents {
+    path: String,
+    parent_path: Option<String>,
+    entries: Vec<FileEntry>,
+}
+
+fn canonical_directory(folder_path: &str) -> Result<PathBuf, String> {
+    let path = Path::new(folder_path);
+    if !path.is_absolute() {
+        return Err("Folder path must be absolute".to_string());
+    }
+
+    let path = fs::canonicalize(path).map_err(|e| format!("Failed to open folder: {}", e))?;
+    if !path.is_dir() {
+        return Err("The selected path is not a folder".to_string());
+    }
+
+    Ok(path)
+}
+
+fn validate_file_name(filename: &str) -> Result<(), String> {
+    if filename.is_empty()
+        || filename == "."
+        || filename == ".."
+        || filename.contains('/')
+        || filename.contains('\\')
+        || filename.contains('\0')
+    {
+        return Err("Invalid filename".to_string());
+    }
+
+    Ok(())
+}
+
+fn validated_file_path(folder_path: &str, filename: &str) -> Result<PathBuf, String> {
+    validate_file_name(filename)?;
+    let dir = canonical_directory(folder_path)?;
+    Ok(dir.join(filename))
+}
+
+fn ensure_regular_file(path: &Path) -> Result<(), String> {
+    let metadata =
+        fs::symlink_metadata(path).map_err(|e| format!("Failed to access file: {}", e))?;
+    if !metadata.file_type().is_file() {
+        return Err("The selected entry is not a regular file".to_string());
+    }
+
+    Ok(())
+}
+
 fn is_generated_note_filename(filename: &str) -> bool {
     filename
         .strip_suffix(".md")
@@ -104,6 +164,104 @@ fn get_notes_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf, String> {
     }
 
     Ok(path)
+}
+
+#[tauri::command]
+fn list_folder(folder_path: String) -> Result<FolderContents, String> {
+    let dir = canonical_directory(&folder_path)?;
+    let mut entries = Vec::new();
+
+    for entry in fs::read_dir(&dir).map_err(|e| format!("Failed to read folder: {}", e))? {
+        let entry = entry.map_err(|e| format!("Failed to read folder entry: {}", e))?;
+        let file_type = entry
+            .file_type()
+            .map_err(|e| format!("Failed to inspect folder entry: {}", e))?;
+
+        if !file_type.is_file() && !file_type.is_dir() {
+            continue;
+        }
+
+        let size = if file_type.is_file() {
+            entry
+                .metadata()
+                .map_err(|e| format!("Failed to inspect file: {}", e))?
+                .len()
+        } else {
+            0
+        };
+
+        entries.push(FileEntry {
+            name: entry.file_name().to_string_lossy().into_owned(),
+            is_dir: file_type.is_dir(),
+            size,
+        });
+    }
+
+    entries.sort_by(|left, right| {
+        right
+            .is_dir
+            .cmp(&left.is_dir)
+            .then_with(|| left.name.to_lowercase().cmp(&right.name.to_lowercase()))
+    });
+
+    Ok(FolderContents {
+        path: dir.to_string_lossy().into_owned(),
+        parent_path: dir.parent().map(|parent| parent.to_string_lossy().into_owned()),
+        entries,
+    })
+}
+
+#[tauri::command]
+fn read_text_file(folder_path: String, filename: String) -> Result<String, String> {
+    let path = validated_file_path(&folder_path, &filename)?;
+    ensure_regular_file(&path)?;
+    fs::read_to_string(path).map_err(|e| format!("Failed to read text file: {}", e))
+}
+
+#[tauri::command]
+fn create_text_file(
+    folder_path: String,
+    filename: String,
+    content: String,
+) -> Result<FileEntry, String> {
+    let path = validated_file_path(&folder_path, &filename)?;
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&path)
+        .map_err(|e| format!("Failed to create file: {}", e))?;
+    file.write_all(content.as_bytes())
+        .map_err(|e| format!("Failed to write file: {}", e))?;
+
+    Ok(FileEntry {
+        name: filename,
+        is_dir: false,
+        size: content.len() as u64,
+    })
+}
+
+#[tauri::command]
+fn update_text_file(
+    folder_path: String,
+    filename: String,
+    content: String,
+) -> Result<FileEntry, String> {
+    let path = validated_file_path(&folder_path, &filename)?;
+    ensure_regular_file(&path)?;
+    fs::write(&path, content.as_bytes()).map_err(|e| format!("Failed to update file: {}", e))?;
+
+    Ok(FileEntry {
+        name: filename,
+        is_dir: false,
+        size: content.len() as u64,
+    })
+}
+
+#[tauri::command]
+fn delete_file(folder_path: String, filename: String) -> Result<(), String> {
+    let path = validated_file_path(&folder_path, &filename)?;
+    ensure_regular_file(&path)?;
+    fs::remove_file(path).map_err(|e| format!("Failed to delete file: {}", e))
 }
 
 #[tauri::command]
@@ -237,6 +395,11 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
             greet,
+            list_folder,
+            read_text_file,
+            create_text_file,
+            update_text_file,
+            delete_file,
             get_all_notes,
             save_note,
             delete_note,
@@ -248,7 +411,23 @@ pub fn run() {
 
 #[cfg(test)]
 mod tests {
-    use super::{format_note_contents, parse_note_file};
+    use super::{format_note_contents, parse_note_file, validate_file_name};
+
+    #[test]
+    fn file_name_validation_rejects_paths_and_accepts_plain_names() {
+        for invalid_name in [
+            "",
+            ".",
+            "..",
+            "../outside.txt",
+            "nested/file.txt",
+            r"..\outside.txt",
+        ] {
+            assert!(validate_file_name(invalid_name).is_err(), "{invalid_name}");
+        }
+
+        assert!(validate_file_name("notes.txt").is_ok());
+    }
 
     #[test]
     fn generated_note_uses_first_line_as_title() {

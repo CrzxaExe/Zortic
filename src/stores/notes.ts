@@ -25,14 +25,13 @@ export const useNotesStore = defineStore("notes", () => {
     }
   }
 
-  async function saveNote(note: Note, callback?: (...args: any[]) => void) {
-    if (activeNote.value.title.length < 1 || activeNote.value.content.length < 1) return
-
+  async function saveNote(note: Partial<Note>, callback?: (...args: any[]) => void) {
+    if(!note.title || note.title.length < 1) return
     try {
       const savedNote = await invoke<Note>("save_note", {
-        filename: note.filename || null,
+        filename: note.filename,
         title: note.title,
-        content: note.content,
+        content: note.content ?? '',
       });
       if(!savedNote) throw new Error("Backend not response");
       
@@ -53,8 +52,8 @@ export const useNotesStore = defineStore("notes", () => {
     }
   }
 
-  async function renameNote(oldNote: Note, newNote: Note) {
-    return await saveNote({ ...newNote, filename: oldNote.filename });
+  async function renameNote(note: Note, title: string) {
+    return await saveNote({ ...note, title });
   }
 
   async function deleteNote(filename: string) {
@@ -118,6 +117,15 @@ export const useNotesStore = defineStore("notes", () => {
      * @returns Saved note or undefined
      */
     saveNote,
+
+    /**
+     * Rename note
+     * 
+     * @param note note before saved
+     * @param title new title
+     * 
+     * @return Saved note or undefined 
+     */
     renameNote,
     deleteNote,
     setActiveNote,

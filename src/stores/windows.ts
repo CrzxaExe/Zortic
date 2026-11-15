@@ -10,7 +10,12 @@ export const useWindowsMenu = defineStore("windows", () => {
         display: {
             open: false,
             pos: { x: 0, y: 0 },
-        }
+        },
+        import: {
+            open: false,
+            pos: { x: 0, y: 0 },
+        },
+
     })
 
     function setState(menu: keyof typeof NoteMenu, state: boolean = !NoteMenu[menu].open) {

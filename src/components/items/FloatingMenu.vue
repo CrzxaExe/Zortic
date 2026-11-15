@@ -24,7 +24,8 @@ defineProps<Props>()
             class="not-last:pb-2 not-last:border-b border-light-300 dark:border-dark-800 not-first:pt-1">
             <span class="block text-xs opacity-80 px-2 pb-px" v-if="label">{{ label }}</span>
 
-            <button v-for="{ icon, label, callback }, i in actions" @click="callback($event, note)" :key="i"
+            <button v-for="{ icon, label, callback }, i in actions.filter(e => !e.hidden)"
+                @click="callback($event, note)" :key="i"
                 class="w-full flex gap-2 items-center px-2 py-0.5 hover:text-primary-600 hover:bg-light-100 dark:hover:bg-black cursor-pointer">
                 <component :is="icon" class="scale-75" />
                 <span>{{ label }}</span>

@@ -15,6 +15,7 @@ type Note = {
 type Action = {
     label: string;
     icon:  DefineComponent<{}, {}, any>;
+    hidden?: boolean;
 }
 
 type ActionFunction = {

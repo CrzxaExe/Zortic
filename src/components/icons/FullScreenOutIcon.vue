@@ -1,0 +1,6 @@
+<template>
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+        <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
+        <path d="M10 4H8v4H4v2h6zm0 16v-6H4v2h4v4zm6-4h4v-2h-6v6h2zm4-8h-4V4h-2v6h6z"></path>
+    </svg>
+</template>

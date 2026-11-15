@@ -8,9 +8,11 @@ import FloatingMenu from '../components/items/FloatingMenu.vue';
 import { useNotesStore } from '../stores/notes.ts';
 import FloatingWindows from '../components/items/FloatingWindows.vue';
 import NoteSaveForm from '../components/forms/NoteSaveForm.vue';
+import ImportNoteForm from '../components/forms/ImportNoteForm.vue';
 import { useWindowsMenu } from '../stores/windows.ts';
 import { Icons } from '../constants/icons.ts';
 import NotesDisplayView from './NotesDisplayView.vue';
+import ActionCommand from '../components/actions/ActionCommand.vue';
 
 const store = useNotesStore()
 const windows = useWindowsMenu()
@@ -19,6 +21,8 @@ const itemType = ref(0)
 const isFloatingMenuOpen = ref(false)
 const cursor = ref({ x: 0, y: 0 })
 const searchValue = ref('')
+const isRenaming = ref(false)
+const renameValue = ref('')
 
 function setItemType(index: number) {
     itemType.value = index
@@ -36,6 +40,12 @@ function closeFloatingMenu() {
     isFloatingMenuOpen.value = false
 }
 
+function renameNote() {
+    if (renameValue.value === '') return
+    store.renameNote(store.activeNote, renameValue.value)
+    isRenaming.value = false
+}
+
 const actions: { label?: string; actions: (Action & ActionFunction)[] }[] = [
     {
         actions: [
@@ -50,11 +60,16 @@ const actions: { label?: string; actions: (Action & ActionFunction)[] }[] = [
             {
                 icon: Icons.Rename,
                 label: "Rename",
-                callback: () => { },
+                callback: (_event: MouseEvent, note: Note) => {
+                    store.setActiveNote(note)
+                    renameValue.value = note.title
+                    isRenaming.value = true
+                },
             },
             {
                 icon: Icons.Folder,
                 label: "Move",
+                hidden: true,
                 callback: () => { },
             },
             {
@@ -99,17 +114,27 @@ onMounted(() => {
         <!-- Save Note Window -->
         <FloatingWindows :title="store.activeNote.filename ? 'Edit Note' : 'Create Note'"
             :initial-x="windows.getData('edit', 'pos').x" :initial-y="windows.getData('edit', 'pos').y"
-            v-if="windows.getData('edit', 'open')" @close="() => windows.setState('edit', false)">
+            v-if="windows.NoteMenu.edit.open" @close="() => windows.setState('edit', false)">
             <NoteSaveForm v-model="store.activeNote" @save="() => {
                 store.saveNote(store.activeNote, () => { windows.NoteMenu.edit.open = false })
             }" />
         </FloatingWindows>
 
         <FloatingWindows :title="store.displayNote.title" :initial-x="windows.getData('display', 'pos').x"
-            :initial-y="windows.getData('display', 'pos').y" v-if="windows.getData('edit', 'open')"
+            :initial-y="windows.getData('display', 'pos').y" v-if="windows.NoteMenu.display.open"
             @close="() => windows.setState('display', false)">
             <NotesDisplayView :content="store.displayNote.content" />
         </FloatingWindows>
+
+        <FloatingWindows title="Import" :initial-x="windows.getData('import', 'pos').x"
+            :initial-y="windows.getData('import', 'pos').y" v-if="windows.NoteMenu.import.open"
+            @close="() => windows.setState('import', false)">
+            <ImportNoteForm />
+        </FloatingWindows>
+
+        <ActionCommand :button="Icons.Save" :label="'Ren (' + store.activeNote.title + '):'"
+            placeholder="Insert new title" v-model="renameValue" @close="() => isRenaming = false" @submit="renameNote"
+            v-if="isRenaming" />
 
         <FloatingMenu :list-actions="actions" v-if="isFloatingMenuOpen" :x="cursor.x" :y="cursor.y"
             :title="store.activeNote?.title" :note="store.activeNote" />

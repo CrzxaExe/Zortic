@@ -12,40 +12,54 @@ const md = computed(() => marked(props.content))
 </script>
 
 <template>
-    <div class="px-3 lg:px-4 py-2 block relative min-h-full overflow-scroll max-h-fits" v-html="md">
+    <div class="markdown-content px-3 lg:px-4 py-2 block relative min-h-full overflow-scroll max-h-fits"
+        v-html="md">
     </div>
 </template>
 
-<style scoped>
-@import "tailwindcss";
+<style>
+.markdown-content h1 {
+    font-size: 3rem;
+    line-height: 1;
+    font-weight: 700;
+}
 
-@layer base {
-    :deep(h1) {
-        @apply font-bold text-5xl;
-    }
+.markdown-content h2 {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 700;
+}
 
-    :deep(h2) {
-        @apply font-bold text-4xl
-    }
+.markdown-content h3 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 700;
+}
 
-    :deep(h3) {
-        @apply font-bold text-3xl
-    }
+.markdown-content h4 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+}
 
-    :deep(h4) {
-        @apply font-bold text-2xl
-    }
+.markdown-content h5 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+}
 
-    :deep(h5) {
-        @apply font-bold text-xl
-    }
+.markdown-content h6 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+}
 
-    :deep(h6) {
-        @apply font-bold text-lg
-    }
-
-    :deep(img) {
-        @apply block relative max-w-full max-h-140 h-auto object-contain
-    }
+.markdown-content img {
+    display: block;
+    position: relative;
+    max-width: 100%;
+    max-height: 35rem;
+    height: auto;
+    object-fit: contain;
 }
 </style>

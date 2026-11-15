@@ -1,5 +1,7 @@
+import ChipIcon from "../components/icons/ChipIcon.vue";
 import DashboardIcon from "../components/icons/DashboardIcon.vue";
 import FinanceIcon from "../components/icons/FinanceIcon.vue";
+import FileIcon from "../components/icons/FileIcon.vue";
 import NoteIcon from "../components/icons/NoteIcon.vue";
 import ToolsIcon from "../components/icons/ToolsIcon.vue";
 
@@ -16,6 +18,16 @@ export const navigationRoute = [
         to: "/notes",
         label: "Notes",
         icon: NoteIcon,
+    },
+    {
+        to: "/files",
+        label: "Files",
+        icon: FileIcon,
+    },
+    {
+        to: "/system",
+        label: "System",
+        icon: ChipIcon,
     },
     {
         to: "/tools",

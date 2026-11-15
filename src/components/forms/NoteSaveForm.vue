@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import SaveIcon from '../icons/SaveIcon.vue';
 
 const model = defineModel<Note>({ required: true })
+const contentRef = ref<HTMLTextAreaElement | null>(null)
 
 const emit = defineEmits<{
     (e: "save"): void
@@ -12,10 +14,12 @@ const emit = defineEmits<{
     <div class="relative flex w-full flex-1 min-h-0 flex-col px-3 lg:px-4 py-2">
         <input type="text" v-model="model.filename" hidden>
 
-        <input v-model="model.title" required type="text" placeholder="Title"
-            class="shrink-0 text-xl font-semibold outline-none">
+        <input v-model="model.title" required type="text" placeholder="Title" @keydown.enter="(e: Event) => {
+            e.preventDefault()
+            contentRef?.focus()
+        }" class="shrink-0 text-xl font-semibold outline-none">
 
-        <textarea v-model="model.content" required name="" id="" placeholder="Text"
+        <textarea v-model="model.content" required placeholder="Text" ref="contentRef"
             class="block w-full flex-1 text-dark-800 dark:text-dark-500 min-h-0 resize-none overflow-y-auto text-sm outline-none mt-2"></textarea>
 
         <div class="shrink-0 pt-2 lg:pt-4">
